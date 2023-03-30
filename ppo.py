@@ -202,7 +202,7 @@ class PPO():
         log_probs = memory.logprobs 
 
         discounted_rewards = []
-        discounted_reward = 0
+        discounted_reward = 0 
         for i in reversed(range(len(rewards))):
             '''
             This part of the code computes the discounted rewards for each time step of the collected experiences in memory. The discounted_reward variable is initialized to 0, 
@@ -216,7 +216,7 @@ class PPO():
             discounted_reward = rewards[i] + self.gamma*discounted_reward
             discounted_rewards.insert(0, discounted_reward)
         
-        discounted_rewards = torch.tensor(discounted_rewards)
+        discounted_rewards = torch.FloatTensor(discounted_rewards)
         # old_state_values = torch.stack(state_values, 1).detach()
         # advantages = discounted_rewards - old_state_values.detach().squeeze()
         # advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-5)
@@ -243,7 +243,7 @@ class PPO():
             ratios = torch.exp(new_log_probs - old_log_probs.detach())
             ratios_clipped = torch.clamp(ratios, min=1-self.epsilon_clip, max=1+self.epsilon_clip)
             loss = -torch.min(ratios*advantages, ratios_clipped*advantages)+ 0.5*self.MseLoss(state_values, discounted_rewards) - 0.01*dist_entropy
-
+            #print(ratios.dtype, advantages.dtype, ratios_clipped.dtype, state_values.dtype, discounted_rewards.dtype, dist_entropy.dtype)
             self.optimizer.zero_grad()
             loss.mean().backward()
             self.optimizer.step()
