@@ -16,13 +16,13 @@ log_interval = 20                                       # number of episodes aft
 solving_threshold = 300                                 # minimum score that your agent needs to achieve in order for you to consider it as "solved" the environment.
 time_step = 0                                           # current time step of your agent's training (this is initialized to zero).
 
-render = False                                          # whether you want to render the environment during training (visualize your agent's performance).
-train = True                                            # whether you want to train your agent or just test its performance (if set to False, your agent will not update its neural network weights).             
-pretrained = False                                      # whether you want to use a pretrained agent (if set to True, your agent will load the weights of a previously trained model instead of starting from scratch).
+render = True                                          # whether you want to render the environment during training (visualize your agent's performance).
+train = False                                           # whether you want to train your agent or just test its performance (if set to False, your agent will not update its neural network weights).             
+pretrained = True                                       # whether you want to use a pretrained agent (if set to True, your agent will load the weights of a previously trained model instead of starting from scratch).
 tensorboard_logging = True                              # whether you want to log the training progress using TensorBoard 
 
 env = gym.make(env_name)                                # OpenAI gym environment used
-env.seed(0)
+env.seed(0)  
 print('observation space:', env.observation_space)
 print('action space:', env.action_space)
 state_size = env.observation_space.shape[0]             # number of features in the observation space of your environment 
@@ -76,7 +76,8 @@ for n_episode in range(1, n_episodes+1):
         '''
         time_step += 1
 
-        action, log_prob = agent.select_action(state, memory)
+        action, log_prob = agent.select_action(state)#, memory)
+
         
         '''
         The state is then reshaped to have a shape of (1, -1) and added to the states list of the memory buffer. Similarly, 
@@ -87,6 +88,7 @@ for n_episode in range(1, n_episodes+1):
         memory.states.append(state)
         memory.actions.append(action)
         memory.logprobs.append(log_prob)
+        #print(log_prob.dtype)
         '''
         The action tensor is converted to a NumPy array using action.data.numpy(), flattened using .flatten(), and passed to the environment's step() method, 
         which takes a step in the environment using that action. The step() method returns four values: the next state of the environment (state), 
@@ -120,6 +122,7 @@ for n_episode in range(1, n_episodes+1):
             the time_step counter is reset to 0 and the memory buffer is cleared.
             '''
             if time_step % update_interval == 0:
+                #print(type(memory))
                 agent.update(memory)
                 time_step = 0
                 memory.clear_buffer()
